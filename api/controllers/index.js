@@ -1,3 +1,9 @@
 import UserController from './users';
+import GameController from './game';
 
-export default {UserController: new UserController()};
+export function buildControllers() {
+    return {
+        UserController: new UserController(),
+        GameController: new GameController()
+    };
+}
