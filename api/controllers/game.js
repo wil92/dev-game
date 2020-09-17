@@ -20,4 +20,9 @@ export default class GameController {
         this.mainGame.stopGame();
         res.send({});
     }
+
+    @Get({route: '/field'})
+    field(req, res) {
+        res.send(this.mainGame.field.grid);
+    }
 }
