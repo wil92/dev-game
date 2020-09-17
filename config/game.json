@@ -1,0 +1,9 @@
+{
+  "development": {
+    "enable": true,
+    "interval": 500
+  },
+  "test": {
+    "enable": false
+  }
+}
