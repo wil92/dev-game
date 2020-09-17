@@ -52,7 +52,8 @@ export class Main {
     sendUpdateToClients() {
         const strategiesList = this.field.strategies.map(strategy => ({
             position: strategy.position,
-            name: strategy.name
+            name: strategy.name,
+            color: strategy.color
         }));
         this.socketConnection.broadcastMessage(strategiesList);
     }

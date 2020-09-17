@@ -1,7 +1,7 @@
 {
   "development": {
     "enable": true,
-    "interval": 500
+    "interval": 250
   },
   "test": {
     "enable": false

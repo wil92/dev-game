@@ -17,10 +17,12 @@ export class Field {
         this.createField();
         this.strategies = [];
 
-        [ ...new Array(4) ].forEach(() => {
-            this.strategies.push(new Strategy(
+        [ ...new Array(50) ].forEach(() => {
+            const strategy = new Strategy(
                 '(function () {return {run: function ({position, vision, velocity}) {this.tmp();return {direction: Math.floor(Math.random() * 9), velocity: Math.floor(Math.random() * (velocity + 1))}}, tmp: function () {}};})();'
-            ));
+            );
+            strategy.setPosition(this.randomNumber(GRID_SIZE), this.randomNumber(GRID_SIZE));
+            this.strategies.push(strategy);
         });
     }
 
@@ -29,7 +31,7 @@ export class Field {
         for (let i = 0; i < GRID_SIZE; i++) {
             this.grid.push([]);
             for (let j = 0; j < GRID_SIZE; j++) {
-                this.grid[i].push(0);
+                this.grid[i].push( Math.floor(Math.random() * 100) < 2 ? 1 : 0 );
             }
         }
     }
@@ -63,7 +65,8 @@ export class Field {
     }
 
     validatePosition(position) {
-        return position && position.x >= 0 && position.x < GRID_SIZE && position.y >= 0 && position.y < GRID_SIZE;
+        return position && position.x >= 0 && position.x < GRID_SIZE && position.y >= 0 && position.y < GRID_SIZE &&
+            !this.grid[position.x][position.y];
     }
 
     calculatePosition(result, position, velocity) {
