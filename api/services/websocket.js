@@ -23,7 +23,7 @@ export class WebSocketConnection {
     broadcastMessage(data) {
         this.server.clients.forEach(function each(client) {
             if (client.readyState === WebSocket.OPEN) {
-                client.send(data);
+                client.send(JSON.stringify(data));
             }
         });
     }

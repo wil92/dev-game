@@ -12,11 +12,13 @@ export class Main {
     socketConnection;
 
     constructor() {
-        this.interval = gameConfig[this.environment.env].interval;
-        this.field = new Field();
-        this.status = 'STOPPED';
+        if (gameConfig[this.environment.env].enable) {
+            this.interval = gameConfig[this.environment.env].interval;
+            this.field = new Field();
+            this.status = 'STOPPED';
 
-        this.startGame();
+            this.startGame();
+        }
     }
 
     startGame() {
@@ -44,6 +46,14 @@ export class Main {
 
     calculateIteration() {
         this.field.runIteration();
-        this.socketConnection.broadcastMessage('interval');
+        this.sendUpdateToClients();
+    }
+
+    sendUpdateToClients() {
+        const strategiesList = this.field.strategies.map(strategy => ({
+            position: strategy.position,
+            name: strategy.name
+        }));
+        this.socketConnection.broadcastMessage(strategiesList);
     }
 }
