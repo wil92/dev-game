@@ -15,3 +15,7 @@ export function Inject(classObject) {
         };
     };
 }
+
+export function addInjectableService(clazz) {
+    services.set(clazz.name, new clazz());
+}

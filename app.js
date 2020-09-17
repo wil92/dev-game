@@ -5,8 +5,12 @@ import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 
 import routes from './api/controllers';
+import {addInjectableService} from './core';
+import {WebSocketConnection} from './api/services';
 
 const app = express();
+
+addInjectableService(WebSocketConnection);
 
 app.use(logger('dev'));
 app.use(express.json());
