@@ -1,0 +1,9 @@
+{
+  "development": {
+    "enable": true,
+    "port": 3002
+  },
+  "test": {
+    "enable": false
+  }
+}
