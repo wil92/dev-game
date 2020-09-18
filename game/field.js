@@ -1,6 +1,6 @@
 import {Strategy} from './strategy';
 
-const DIR = [ [ -1, 1 ], [ 0, 1 ], [ 1, 1 ], [ -1, 0 ], [ 0, 0 ], [ 1, 0 ], [ -1, -1 ], [ 0, -1 ], [ 1, -1 ] ];
+const DIR = [[-1, 1], [0, 1], [1, 1], [-1, 0], [0, 0], [1, 0], [-1, -1], [0, -1], [1, -1]];
 const newStrategies = [];
 
 export function addStrategy(strategy) {
@@ -17,7 +17,7 @@ export class Field {
         this.createField();
         this.strategies = [];
 
-        [ ...new Array(50) ].forEach(() => {
+        [...new Array(50)].forEach(() => {
             const strategy = new Strategy(
                 '(function () {return {run: function ({position, vision, velocity}) {this.tmp();return {direction: Math.floor(Math.random() * 9), velocity: Math.floor(Math.random() * (velocity + 1))}}, tmp: function () {}};})();'
             );
@@ -31,8 +31,22 @@ export class Field {
         for (let i = 0; i < GRID_SIZE; i++) {
             this.grid.push([]);
             for (let j = 0; j < GRID_SIZE; j++) {
-                this.grid[i].push( Math.floor(Math.random() * 100) < 2 ? 1 : 0 );
+                this.grid[i].push(0);
             }
+        }
+        for (let i = 0; i < Math.floor(GRID_SIZE * GRID_SIZE / 100); i++) {
+            const x = this.randomNumber(GRID_SIZE);
+            const y = this.randomNumber(GRID_SIZE);
+            this.fillWall(x, y);
+            this.fillWall(x + 1, y);
+            this.fillWall(x, y + 1);
+            this.fillWall(x + 1, y + 1);
+        }
+    }
+
+    fillWall(x, y) {
+        if (this.validatePosition({x, y})) {
+            this.grid[x][y] = 1;
         }
     }
 
@@ -58,15 +72,18 @@ export class Field {
             .map(strategy => strategy.execute({vision: this.extractVisionField(strategy.position)}))
             .forEach((result, index) => {
                 const position = this.calculatePosition(result, this.strategies[index].position, this.strategies[index].velocity);
-                if (this.validatePosition(position)) {
+                if (this.validatePosition(position) && this.validateCollision(position)) {
                     this.strategies[index].setPosition(position.x, position.y);
                 }
             });
     }
 
     validatePosition(position) {
-        return position && position.x >= 0 && position.x < GRID_SIZE && position.y >= 0 && position.y < GRID_SIZE &&
-            !this.grid[position.x][position.y];
+        return position && position.x >= 0 && position.x < GRID_SIZE && position.y >= 0 && position.y < GRID_SIZE;
+    }
+
+    validateCollision(position) {
+        return position && !this.grid[position.x][position.y];
     }
 
     calculatePosition(result, position, velocity) {
