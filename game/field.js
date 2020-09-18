@@ -53,6 +53,34 @@ export class Field {
     runIteration() {
         this.loadNewStrategies();
         this.executeStrategies();
+        this.calculateDamageByField()
+        this.calculateDamage();
+    }
+
+    calculateDamage() {
+        const positions = new Map();
+        this.strategies.forEach(strategy => {
+            const positionHash = `${strategy.position.x}/${strategy.position.y}`;
+            if (positions.has(positionHash)) {
+                positions.get(positionHash).push(strategy);
+            } else {
+                positions.set(positionHash, [strategy]);
+            }
+        });
+        this.calculateDamageByPlayers(positions);
+    }
+
+    calculateDamageByPlayers(positions) {
+        positions.forEach(position => {
+            if (position.length > 1) {
+                const sum = position.reduce((p, v) => p.attack + v, 0);
+                position.forEach((strategy) => strategy.health -= (sum - strategy.attack) / (position.length - 1));
+            }
+        });
+        this.strategies = this.strategies.filter(strategy => strategy.health > 0);
+    }
+
+    calculateDamageByField() {
     }
 
     loadNewStrategies() {
