@@ -1,11 +1,13 @@
 {
   "development": {
     "enable": true,
-    "port": 3002
+    "port": 3002,
+    "path": "/game"
   },
   "docker": {
     "enable": true,
-    "port": 3001
+    "port": 3001,
+    "path": "/game"
   },
   "test": {
     "enable": false

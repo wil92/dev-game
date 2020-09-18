@@ -12,7 +12,10 @@ export class WebSocketConnection {
     constructor() {
         this.enable = webSocketConfig[this.environment.env].enable;
         if (this.enable) {
-            this.server = new WebSocket.Server({port: webSocketConfig[this.environment.env].port});
+            this.server = new WebSocket.Server({
+                port: webSocketConfig[this.environment.env].port,
+                path: webSocketConfig[this.environment.env].path
+            });
 
             console.log('websocket started in port:', webSocketConfig[this.environment.env].port);
 
