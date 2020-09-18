@@ -10,7 +10,7 @@
   "docker": {
     "enable": true,
     "host": "localhost",
-    "port": 27011,
+    "port": 27017,
     "database": "dev_game",
     "useNewUrlParser": true,
     "useUnifiedTopology": true
