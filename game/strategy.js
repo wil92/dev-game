@@ -5,6 +5,8 @@ export class Strategy {
         this.name = [ ...new Array(5) ].reduce(p => p + 'qwertyuiasdfghjzxcnmiopjkl'[Math.floor(Math.random() * 20)], '');
         this.position = {x: 0, y: 0};
         this.velocity = 3;
+        this.health = 100;
+        this.attack = 10;
         this.color = this.getRandomColor();
     }
 
@@ -23,7 +25,6 @@ export class Strategy {
 
     execute({vision}) {
         // execute code, with the field info
-        // console.log('executed strategy:', this.name, 'in position:', this.position);
         try {
             const obj = eval(this.code);
             return obj.run({vision, velocity: this.velocity});
