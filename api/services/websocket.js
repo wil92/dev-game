@@ -14,6 +14,8 @@ export class WebSocketConnection {
         if (this.enable) {
             this.server = new WebSocket.Server({port: webSocketConfig[this.environment.env].port});
 
+            console.log('websocket started in port:', webSocketConfig[this.environment.env].port);
+
             this.server.on('connection', () => {
                 console.log('Client connection');
             });
