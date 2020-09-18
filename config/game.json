@@ -3,6 +3,10 @@
     "enable": true,
     "interval": 250
   },
+  "docker": {
+    "enable": true,
+    "interval": 250
+  },
   "test": {
     "enable": false
   }

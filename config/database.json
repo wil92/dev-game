@@ -7,6 +7,14 @@
     "useNewUrlParser": true,
     "useUnifiedTopology": true
   },
+  "docker": {
+    "enable": true,
+    "host": "localhost",
+    "port": 27011,
+    "database": "dev_game",
+    "useNewUrlParser": true,
+    "useUnifiedTopology": true
+  },
   "test": {
     "enable": true,
     "host": "localhost",

@@ -3,6 +3,10 @@
     "enable": true,
     "port": 3002
   },
+  "docker": {
+    "enable": true,
+    "port": 3001
+  },
   "test": {
     "enable": false
   }
