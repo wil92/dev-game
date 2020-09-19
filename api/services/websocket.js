@@ -6,7 +6,9 @@ import webSocketConfig from '../../config/websocket.json';
 
 export const MessagesTypes = {
     USERS_DATA: 'USERS_DATA',
-    MAP_UPDATE: 'MAP_UPDATE'
+    MAP_UPDATE: 'MAP_UPDATE',
+    GAME_PAUSE: 'GAME_PAUSE',
+    GAME_END: 'GAME_END'
 };
 
 export class WebSocketConnection {

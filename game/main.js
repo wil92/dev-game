@@ -13,24 +13,9 @@ export class Main {
 
     constructor() {
         if (gameConfig[this.environment.env].enable) {
-            this.interval = gameConfig[this.environment.env].interval;
-            this.field = new Field();
-            this.status = 'STOPPED';
-            this.gameTime = 0;
-
+            this.initGameValues();
             this.startGame();
         }
-    }
-
-    startGame() {
-        if (this.status === 'STOPPED') {
-            this.status = 'RUNNING';
-            this.loop();
-        }
-    }
-
-    stopGame() {
-        this.status = 'STOPPED';
     }
 
     loop() {
@@ -57,6 +42,34 @@ export class Main {
             name: strategy.name,
             color: strategy.color
         }));
-        this.socketConnection.broadcastMessage(MessagesTypes.USERS_DATA, strategiesList);
+        if (strategiesList.length > 0) {
+            this.socketConnection.broadcastMessage(MessagesTypes.USERS_DATA, strategiesList);
+        } else {
+            this.socketConnection.broadcastMessage(MessagesTypes.GAME_END);
+            setTimeout(this.restartGame.bind(this), 1000);
+        }
+    }
+
+    restartGame() {
+        this.initGameValues();
+        this.startGame();
+    }
+
+    startGame() {
+        if (gameConfig[this.environment.env].enable && this.status === 'STOPPED') {
+            this.status = 'RUNNING';
+            this.loop();
+        }
+    }
+
+    stopGame() {
+        this.status = 'STOPPED';
+    }
+
+    initGameValues() {
+        this.interval = gameConfig[this.environment.env].interval;
+        this.field = new Field();
+        this.status = 'STOPPED';
+        this.gameTime = 0;
     }
 }
