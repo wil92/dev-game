@@ -1,5 +1,5 @@
 import {Inject} from '../core';
-import {Environment, WebSocketConnection} from '../api/services';
+import {Environment, WebSocketConnection, MessagesTypes} from '../api/services';
 import gameConfig from '../config/game.json';
 import {Field} from './field';
 
@@ -57,6 +57,6 @@ export class Main {
             name: strategy.name,
             color: strategy.color
         }));
-        this.socketConnection.broadcastMessage(strategiesList);
+        this.socketConnection.broadcastMessage(MessagesTypes.USERS_DATA, strategiesList);
     }
 }

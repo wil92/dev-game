@@ -4,6 +4,11 @@ import {Inject} from '../../core';
 import {Environment} from './environment';
 import webSocketConfig from '../../config/websocket.json';
 
+export const MessagesTypes = {
+    USERS_DATA: 'USERS_DATA',
+    MAP_UPDATE: 'MAP_UPDATE'
+};
+
 export class WebSocketConnection {
 
     @Inject(Environment)
@@ -25,10 +30,10 @@ export class WebSocketConnection {
         }
     }
 
-    broadcastMessage(data) {
+    broadcastMessage(type, data) {
         this.server.clients.forEach(function each(client) {
             if (client.readyState === WebSocket.OPEN) {
-                client.send(JSON.stringify(data));
+                client.send(JSON.stringify({type, data}));
             }
         });
     }

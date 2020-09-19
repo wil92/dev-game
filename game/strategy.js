@@ -24,11 +24,13 @@ export class Strategy {
     }
 
     execute({vision}) {
-        // execute code, with the field info
         try {
+            // toDo 19.09.20: execute the strategy code in a different environment
             const obj = eval(this.code);
             return obj.run({vision, velocity: this.velocity});
-        } catch (ignore) {
+        } catch (error) {
+            // toDo 19.09.20: disqualify strategy with exception
+            console.log(error);
         }
         return null;
     }

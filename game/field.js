@@ -1,11 +1,10 @@
 import {Strategy} from './strategy';
-import gameConfig from "../config/game.json";
-import {Inject} from "../core";
-import {Environment} from "../api/services";
+import gameConfig from '../config/game.json';
+import {Inject} from '../core';
+import {Environment, MessagesTypes, WebSocketConnection} from '../api/services';
 import FieldEnum from './field.enum';
-import game from "../api/controllers/game";
 
-const DIR = [[-1, 1], [0, 1], [1, 1], [-1, 0], [0, 0], [1, 0], [-1, -1], [0, -1], [1, -1]];
+const DIR = [ [ -1, 1 ], [ 0, 1 ], [ 1, 1 ], [ -1, 0 ], [ 0, 0 ], [ 1, 0 ], [ -1, -1 ], [ 0, -1 ], [ 1, -1 ] ];
 const newStrategies = [];
 
 export function addStrategy(strategy) {
@@ -20,6 +19,9 @@ const GAME_DURATION = 180000; // 3 minutes
 
 export class Field {
 
+    @Inject(WebSocketConnection)
+    socketConnection;
+
     @Inject(Environment)
     environment;
 
@@ -29,7 +31,7 @@ export class Field {
         this.stormCenter = {x: this.randomNumber(GRID_SIZE), y: this.randomNumber(GRID_SIZE)};
         this.strategies = [];
 
-        [...new Array(50)].forEach(() => {
+        [ ...new Array(50) ].forEach(() => {
             const strategy = new Strategy(
                 '(function () {return {run: function ({position, vision, velocity}) {this.tmp();return {direction: Math.floor(Math.random() * 9), velocity: Math.floor(Math.random() * (velocity + 1))}}, tmp: function () {}};})();'
             );
@@ -73,13 +75,18 @@ export class Field {
     closeGasCircle(gameTime) {
         gameTime = Math.min(gameTime, GAME_DURATION);
         const stormRatio = GRID_SIZE - (GRID_SIZE * gameTime / GAME_DURATION);
+        let flagStormMove = false;
         for (let i = 0; i < GRID_SIZE; i++) {
             for (let j = 0; j < GRID_SIZE; j++) {
                 const distanceToTheStorm = Math.sqrt(Math.pow(i - this.stormCenter.x, 2) + Math.pow(j - this.stormCenter.y, 2));
                 if (this.grid[i][j] === FieldEnum.FREE && (stormRatio === 0 || distanceToTheStorm > stormRatio)) {
                     this.grid[i][j] = FieldEnum.GAS;
+                    flagStormMove = true;
                 }
             }
+        }
+        if (flagStormMove) {
+            this.socketConnection.broadcastMessage(MessagesTypes.MAP_UPDATE);
         }
     }
 
@@ -90,7 +97,7 @@ export class Field {
             if (positions.has(positionHash)) {
                 positions.get(positionHash).push(strategy);
             } else {
-                positions.set(positionHash, [strategy]);
+                positions.set(positionHash, [ strategy ]);
             }
         });
         this.calculateDamageByPlayers(positions);
