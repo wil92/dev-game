@@ -16,6 +16,7 @@ export class Main {
             this.interval = gameConfig[this.environment.env].interval;
             this.field = new Field();
             this.status = 'STOPPED';
+            this.gameTime = 0;
 
             this.startGame();
         }
@@ -40,12 +41,13 @@ export class Main {
 
             const sleepTime = Math.max(this.interval - (endTime - initialTime), 0);
 
+            this.gameTime += this.interval;
             setTimeout(this.loop.bind(this), sleepTime);
         }
     }
 
     calculateIteration() {
-        this.field.runIteration();
+        this.field.runIteration(this.gameTime);
         this.sendUpdateToClients();
     }
 

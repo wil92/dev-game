@@ -1,4 +1,9 @@
 import {Strategy} from './strategy';
+import gameConfig from "../config/game.json";
+import {Inject} from "../core";
+import {Environment} from "../api/services";
+import FieldEnum from './field.enum';
+import game from "../api/controllers/game";
 
 const DIR = [[-1, 1], [0, 1], [1, 1], [-1, 0], [0, 0], [1, 0], [-1, -1], [0, -1], [1, -1]];
 const newStrategies = [];
@@ -10,11 +15,18 @@ export function addStrategy(strategy) {
 const GRID_SIZE = 100;
 const VISION_SIZE = 12;
 const MAX_NUMBER_OF_STRATEGIES = 50;
+const GAS_DAMAGE = 10;
+const GAME_DURATION = 180000; // 3 minutes
 
 export class Field {
 
+    @Inject(Environment)
+    environment;
+
     constructor() {
+        this.interval = gameConfig[this.environment.env].interval;
         this.createField();
+        this.stormCenter = {x: this.randomNumber(GRID_SIZE), y: this.randomNumber(GRID_SIZE)};
         this.strategies = [];
 
         [...new Array(50)].forEach(() => {
@@ -31,7 +43,7 @@ export class Field {
         for (let i = 0; i < GRID_SIZE; i++) {
             this.grid.push([]);
             for (let j = 0; j < GRID_SIZE; j++) {
-                this.grid[i].push(0);
+                this.grid[i].push(FieldEnum.FREE);
             }
         }
         for (let i = 0; i < Math.floor(GRID_SIZE * GRID_SIZE / 100); i++) {
@@ -46,15 +58,29 @@ export class Field {
 
     fillWall(x, y) {
         if (this.validatePosition({x, y})) {
-            this.grid[x][y] = 1;
+            this.grid[x][y] = FieldEnum.BLOCK;
         }
     }
 
-    runIteration() {
+    runIteration(gameTime) {
         this.loadNewStrategies();
         this.executeStrategies();
-        this.calculateDamageByField()
+        this.calculateDamageByField();
         this.calculateDamage();
+        this.closeGasCircle(gameTime);
+    }
+
+    closeGasCircle(gameTime) {
+        gameTime = Math.min(gameTime, GAME_DURATION);
+        const stormRatio = GRID_SIZE - (GRID_SIZE * gameTime / GAME_DURATION);
+        for (let i = 0; i < GRID_SIZE; i++) {
+            for (let j = 0; j < GRID_SIZE; j++) {
+                const distanceToTheStorm = Math.sqrt(Math.pow(i - this.stormCenter.x, 2) + Math.pow(j - this.stormCenter.y, 2));
+                if (this.grid[i][j] === FieldEnum.FREE && (stormRatio === 0 || distanceToTheStorm > stormRatio)) {
+                    this.grid[i][j] = FieldEnum.GAS;
+                }
+            }
+        }
     }
 
     calculateDamage() {
@@ -81,6 +107,11 @@ export class Field {
     }
 
     calculateDamageByField() {
+        this.strategies.forEach(strategy => {
+            if (this.grid[strategy.position.x][strategy.position.y] === FieldEnum.GAS) {
+                strategy.health -= GAS_DAMAGE;
+            }
+        });
     }
 
     loadNewStrategies() {
@@ -111,7 +142,7 @@ export class Field {
     }
 
     validateCollision(position) {
-        return position && !this.grid[position.x][position.y];
+        return position && this.grid[position.x][position.y] !== FieldEnum.BLOCK;
     }
 
     calculatePosition(result, position, velocity) {

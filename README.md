@@ -1,6 +1,6 @@
 # Dev Game
 
-Base code of a game from and for developer
+Game from and for developer
 
 ## Start the project
 
