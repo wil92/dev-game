@@ -59,6 +59,7 @@ export class Main {
     startGame() {
         if (gameConfig[this.environment.env].enable && this.status === 'STOPPED') {
             this.status = 'RUNNING';
+            this.socketConnection.broadcastMessage(MessagesTypes.GAME_START);
             this.loop();
         }
     }
