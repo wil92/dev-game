@@ -16,6 +16,7 @@ const VISION_SIZE = 12;
 const MAX_NUMBER_OF_STRATEGIES = 50;
 const GAS_DAMAGE = 10;
 const GAME_DURATION = 180000; // 3 minutes
+const INITIAL_STORM_RATIO = Math.sqrt(2 * GRID_SIZE * GRID_SIZE);
 
 export class Field {
 
@@ -74,7 +75,7 @@ export class Field {
 
     closeGasCircle(gameTime) {
         gameTime = Math.min(gameTime, GAME_DURATION);
-        const stormRatio = GRID_SIZE - (GRID_SIZE * gameTime / GAME_DURATION);
+        const stormRatio = INITIAL_STORM_RATIO - (INITIAL_STORM_RATIO * gameTime / GAME_DURATION);
         let flagStormMove = false;
         for (let i = 0; i < GRID_SIZE; i++) {
             for (let j = 0; j < GRID_SIZE; j++) {
@@ -86,7 +87,7 @@ export class Field {
             }
         }
         if (flagStormMove) {
-            this.socketConnection.broadcastMessage(MessagesTypes.MAP_UPDATE);
+            this.socketConnection.broadcastMessage(MessagesTypes.MAP_UPDATE, this.grid);
         }
     }
 

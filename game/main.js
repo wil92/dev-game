@@ -46,6 +46,7 @@ export class Main {
             this.socketConnection.broadcastMessage(MessagesTypes.USERS_DATA, strategiesList);
         } else {
             this.socketConnection.broadcastMessage(MessagesTypes.GAME_END);
+            this.stopGame();
             setTimeout(this.restartGame.bind(this), 1000);
         }
     }
