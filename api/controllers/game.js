@@ -1,6 +1,6 @@
 import {Controller, Get, Inject, Post} from '../../core';
 import {Main} from '../../game';
-import {CheckStrategy} from '../services';
+import {CheckStrategy, Sanitizer} from '../services';
 import {EvalEnum} from "../../game/enums";
 
 @Controller({route: '/game'})
@@ -11,6 +11,9 @@ export default class GameController {
 
     @Inject(CheckStrategy)
     checkStrategy;
+
+    @Inject(Sanitizer)
+    sanitizer;
 
     @Get({route: '/start'})
     async start(req, res) {
@@ -33,18 +36,22 @@ export default class GameController {
 
     @Post({route: '/strategy'})
     async createStrategy(req, res) {
-        const result = await this.checkStrategy.checkStrategy(req.body.code);
-        delete result.id;
-        if (result.status === EvalEnum.OK) {
-            this.mainGame.addNewStrategy(req.body.code, req.body.code);
+        if (this.sanitizer.sanitizeRequestBody(req, res, ['code', 'name'])) {
+            const result = await this.checkStrategy.checkStrategy(req.body.code);
+            delete result.id;
+            if (result.status === EvalEnum.OK) {
+                this.mainGame.addNewStrategy(req.body.code, req.body.code);
+            }
+            res.send(result);
         }
-        res.send(result);
     }
 
     @Post({route: '/strategy/test'})
     async testStrategy(req, res) {
-        const result = await this.checkStrategy.checkStrategy(req.body.code);
-        delete result.id;
-        res.send(result);
+        if (this.sanitizer.sanitizeRequestBody(req, res, ['code'])) {
+            const result = await this.checkStrategy.checkStrategy(req.body.code);
+            delete result.id;
+            res.send(result);
+        }
     }
 }
