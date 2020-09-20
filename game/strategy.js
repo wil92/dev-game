@@ -1,13 +1,17 @@
+import {randomName} from './utils';
+import {EvalEnum} from './enums';
+
 export class Strategy {
 
-    constructor(code) {
+    constructor(code, evalInstance) {
         this.code = code;
-        this.name = [ ...new Array(5) ].reduce(p => p + 'qwertyuiasdfghjzxcnmiopjkl'[Math.floor(Math.random() * 20)], '');
+        this.name = randomName(5);
         this.position = {x: 0, y: 0};
         this.velocity = 3;
         this.health = 100;
         this.attack = 10;
         this.color = this.getRandomColor();
+        this.eval = evalInstance;
     }
 
     getRandomColor() {
@@ -23,15 +27,23 @@ export class Strategy {
         this.position = {x, y};
     }
 
-    execute({vision}) {
+    async execute({vision}) {
         try {
-            // toDo 19.09.20: execute the strategy code in a different environment
-            const obj = eval(this.code);
-            return obj.run({vision, velocity: this.velocity});
+            return this.eval.evalStrategy(this.code, {vision, velocity: this.velocity})
+                .then(({status, result, error}) => {
+                    if (status === EvalEnum.OK) {
+                        return result;
+                    } else if (status === EvalEnum.TIMEOUT) {
+                        console.error('Timeout with strategy', this.name);
+                    } else {
+                        // toDo 19.09.20: disqualify strategy
+                        console.error(status, error);
+                    }
+                });
         } catch (error) {
             // toDo 19.09.20: disqualify strategy with exception
             console.log(error);
         }
-        return null;
+        return Promise.reject();
     }
 }

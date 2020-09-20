@@ -2,7 +2,8 @@ import {Strategy} from './strategy';
 import gameConfig from '../config/game.json';
 import {Inject} from '../core';
 import {Environment, MessagesTypes, WebSocketConnection} from '../api/services';
-import FieldEnum from './field.enum';
+import {FieldEnum} from './enums';
+import {Eval} from './eval';
 
 const DIR = [ [ -1, 1 ], [ 0, 1 ], [ 1, 1 ], [ -1, 0 ], [ 0, 0 ], [ 1, 0 ], [ -1, -1 ], [ 0, -1 ], [ 1, -1 ] ];
 const newStrategies = [];
@@ -31,10 +32,12 @@ export class Field {
         this.createField();
         this.stormCenter = {x: this.randomNumber(GRID_SIZE), y: this.randomNumber(GRID_SIZE)};
         this.strategies = [];
+        this.eval = new Eval();
 
         [ ...new Array(50) ].forEach(() => {
             const strategy = new Strategy(
-                '(function () {return {run: function ({position, vision, velocity}) {this.tmp();return {direction: Math.floor(Math.random() * 9), velocity: Math.floor(Math.random() * (velocity + 1))}}, tmp: function () {}};})();'
+                '(function () {return {run: function ({position, vision, velocity}) {this.tmp();return {direction: Math.floor(Math.random() * 9), velocity: Math.floor(Math.random() * (velocity + 1))}}, tmp: function () {}};})();',
+                this.eval
             );
             strategy.setPosition(this.randomNumber(GRID_SIZE), this.randomNumber(GRID_SIZE));
             this.strategies.push(strategy);
@@ -65,9 +68,9 @@ export class Field {
         }
     }
 
-    runIteration(gameTime) {
+    async runIteration(gameTime) {
         this.loadNewStrategies();
-        this.executeStrategies();
+        await this.executeStrategies();
         this.calculateDamageByField();
         this.calculateDamage();
         this.closeGasCircle(gameTime);
@@ -134,15 +137,14 @@ export class Field {
         return Math.floor(Math.random() * limit);
     }
 
-    executeStrategies() {
-        this.strategies
-            .map(strategy => strategy.execute({vision: this.extractVisionField(strategy.position)}))
-            .forEach((result, index) => {
-                const position = this.calculatePosition(result, this.strategies[index].position, this.strategies[index].velocity);
-                if (this.validatePosition(position) && this.validateCollision(position)) {
-                    this.strategies[index].setPosition(position.x, position.y);
-                }
-            });
+    async executeStrategies() {
+        for (let strategy of this.strategies) {
+            const result = await strategy.execute({vision: this.extractVisionField(strategy.position)});
+            const position = this.calculatePosition(result, strategy.position, strategy.velocity);
+            if (this.validatePosition(position) && this.validateCollision(position)) {
+                strategy.setPosition(position.x, position.y);
+            }
+        }
     }
 
     validatePosition(position) {

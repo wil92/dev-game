@@ -21,18 +21,19 @@ export class Main {
     loop() {
         if (this.status === 'RUNNING') {
             const initialTime = Date.now();
-            this.calculateIteration();
-            const endTime = Date.now();
+            this.calculateIteration().then(() => {
+                const endTime = Date.now();
 
-            const sleepTime = Math.max(this.interval - (endTime - initialTime), 0);
+                const sleepTime = Math.max(this.interval - (endTime - initialTime), 0);
 
-            this.gameTime += this.interval;
-            setTimeout(this.loop.bind(this), sleepTime);
+                this.gameTime += this.interval;
+                setTimeout(this.loop.bind(this), sleepTime);
+            });
         }
     }
 
-    calculateIteration() {
-        this.field.runIteration(this.gameTime);
+    async calculateIteration() {
+        await this.field.runIteration(this.gameTime);
         this.sendUpdateToClients();
     }
 

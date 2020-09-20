@@ -27,6 +27,7 @@
     "mocha": true
   },
   "globals": {
-    "Map": true
+    "Map": true,
+    "Promise": true
   }
 }
