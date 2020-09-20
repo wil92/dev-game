@@ -14,7 +14,7 @@ export function validMovements(mapInfo) {
             const xpos = mapInfo.position.x + DIRECTION[i][0] * j;
             const ypos = mapInfo.position.y + DIRECTION[i][1] * j;
             if (xpos >= 0 && xpos < mapInfo.vision.length &&
-                ypos >=0 && mapInfo.vision[0].length &&
+                ypos >= 0 && ypos < mapInfo.vision[0].length &&
                 mapInfo.vision[xpos][ypos] !== FieldEnum.BLOCK &&
                 !marked.has(`${xpos}/${ypos}`)
             ) {
