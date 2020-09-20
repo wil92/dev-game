@@ -4,8 +4,8 @@ import {Inject} from '../core';
 import {Environment, MessagesTypes, WebSocketConnection} from '../api/services';
 import {FieldEnum} from './enums';
 import {Eval} from './eval';
+import {DIRECTION} from './utils';
 
-const DIR = [ [ -1, 1 ], [ 0, 1 ], [ 1, 1 ], [ -1, 0 ], [ 0, 0 ], [ 1, 0 ], [ -1, -1 ], [ 0, -1 ], [ 1, -1 ] ];
 const newStrategies = [];
 
 export function addStrategy(strategy) {
@@ -34,13 +34,15 @@ export class Field {
         this.strategies = [];
         this.eval = new Eval();
 
-        [ ...new Array(50) ].forEach(() => {
+        [...new Array(50)].forEach(() => {
             const strategy = new Strategy(
-                '(function () {return {run: function ({position, vision, velocity}) {this.tmp();return {direction: Math.floor(Math.random() * 9), velocity: Math.floor(Math.random() * (velocity + 1))}}, tmp: function () {}};})();',
+                '(function () {\n    return {\n        run: function ({position, vision, velocity, players, health, attack, name}) {\n            return this.getRandomMovement({position, vision, velocity});\n        },\n        getRandomMovement: function (mapInfo) {\n            const movements = getValidMovements(mapInfo);\n            const selection = movements[Math.floor(Math.random() * movements.length)];\n            return {velocity: selection.velocity, direction: selection.direction};\n        }\n    };\n})();',
                 this.eval
             );
             strategy.setPosition(this.randomNumber(GRID_SIZE), this.randomNumber(GRID_SIZE));
-            this.strategies.push(strategy);
+            if (this.grid[strategy.position.x][strategy.position.y] !== FieldEnum.BLOCK) {
+                this.strategies.push(strategy);
+            }
         });
     }
 
@@ -101,7 +103,7 @@ export class Field {
             if (positions.has(positionHash)) {
                 positions.get(positionHash).push(strategy);
             } else {
-                positions.set(positionHash, [ strategy ]);
+                positions.set(positionHash, [strategy]);
             }
         });
         this.calculateDamageByPlayers(positions);
@@ -139,7 +141,12 @@ export class Field {
 
     async executeStrategies() {
         for (let strategy of this.strategies) {
-            const result = await strategy.execute({vision: this.extractVisionField(strategy.position)});
+            const fieldInfo = {
+                vision: this.extractVisionField(strategy.position),
+                position: this.extractPlayerPositionInVisionField(strategy.position),
+                players: [] // toDo 20.09.20: calculate players inside the vision area
+            };
+            const result = await strategy.executeStrategy(fieldInfo);
             const position = this.calculatePosition(result, strategy.position, strategy.velocity);
             if (this.validatePosition(position) && this.validateCollision(position)) {
                 strategy.setPosition(position.x, position.y);
@@ -158,8 +165,8 @@ export class Field {
     calculatePosition(result, position, velocity) {
         if (this.checkResultDirection(result) && this.checkResultVelocity(result, velocity)) {
             return {
-                x: (DIR[result.direction][0] * result.velocity) + position.x,
-                y: (DIR[result.direction][1] * result.velocity) + position.y
+                x: (DIRECTION[result.direction][0] * result.velocity) + position.x,
+                y: (DIRECTION[result.direction][1] * result.velocity) + position.y
             };
         }
         return null;
@@ -188,5 +195,16 @@ export class Field {
         }
 
         return vision;
+    }
+
+    /**
+     *
+     * @param strategyPosition {{x: number, y:number}}
+     * @returns {{x: number, y: number}}
+     */
+    extractPlayerPositionInVisionField(strategyPosition) {
+        const x1 = Math.max(strategyPosition.x - VISION_SIZE, 0);
+        const y1 = Math.max(strategyPosition.y - VISION_SIZE, 0);
+        return {x: strategyPosition.x - x1, y: strategyPosition.y - y1};
     }
 }

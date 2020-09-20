@@ -7,7 +7,7 @@ export class Strategy {
         this.code = code;
         this.name = randomName(5);
         this.position = {x: 0, y: 0};
-        this.velocity = 3;
+        this.velocity = 2;
         this.health = 100;
         this.attack = 10;
         this.color = this.getRandomColor();
@@ -24,12 +24,28 @@ export class Strategy {
     }
 
     setPosition(x, y) {
-        this.position = {x, y};
+        this.position = typeof x === 'number' ? {x, y} : x;
     }
 
-    async execute({vision}) {
+    /**
+     *
+     * @param vision {[[number]]}
+     * @param players {[{position: {x: number, y: number}, health: number, attack: number, name: string}]}
+     * @param position {{x: number, y: number}}
+     * @returns {Promise<*>}
+     */
+    async executeStrategy({vision, players, position}) {
         try {
-            return this.eval.evalStrategy(this.code, {vision, velocity: this.velocity})
+            const strategyData = {
+                vision,
+                players,
+                position,
+                velocity: this.velocity,
+                health: this.health,
+                attack: this.attack,
+                name: this.name
+            };
+            return this.eval.evalStrategy(this.code, strategyData)
                 .then(({status, result, error}) => {
                     if (status === EvalEnum.OK) {
                         return result;
@@ -41,7 +57,6 @@ export class Strategy {
                     }
                 });
         } catch (error) {
-            // toDo 19.09.20: disqualify strategy with exception
             console.log(error);
         }
         return Promise.reject();
