@@ -3,6 +3,8 @@ import {Environment, WebSocketConnection, MessagesTypes} from '../api/services';
 import gameConfig from '../config/game.json';
 import {Field} from './field';
 
+const MAX_NUMBER_OF_STRATEGIES = 50;
+
 export class Main {
 
     @Inject(Environment)
@@ -15,6 +17,7 @@ export class Main {
         if (gameConfig[this.environment.env].enable) {
             this.initGameValues();
             this.startGame();
+            this.newStrategies = [];
         }
     }
 
@@ -29,6 +32,17 @@ export class Main {
                 this.gameTime += this.interval;
                 setTimeout(this.loop.bind(this), sleepTime);
             });
+        }
+    }
+
+    /**
+     *
+     * @param code {string}
+     * @param name {string}
+     */
+    addNewStrategy(code, name) {
+        if (this.field.strategies.length + 1 < MAX_NUMBER_OF_STRATEGIES) {
+            // toDo 20.09.20: insert new strategy in queue
         }
     }
 

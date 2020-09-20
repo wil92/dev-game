@@ -7,7 +7,7 @@ import {EvalEnum} from '../../game/enums';
 const TIMES_TO_WAIT_TEST = 10;
 const LIMIT_TIME_TO_TEST_STRATEGY = 5000; // 5 seconds
 
-@Injectable
+@Injectable()
 export class CheckStrategy {
 
     constructor() {

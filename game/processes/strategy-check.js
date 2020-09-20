@@ -23,7 +23,7 @@ function checkStrategy({code, id}) {
                     if (!validateAction(testcase, strategyResult)) {
                         return process.send({
                             status: EvalEnum.INVALID_ACTION,
-                            result: {testcase, output: strategyResult},
+                            result: {input: testcase, output: strategyResult},
                             id
                         });
                     }

@@ -6,15 +6,8 @@ import {FieldEnum} from './enums';
 import {Eval} from './eval';
 import {DIRECTION} from './utils';
 
-const newStrategies = [];
-
-export function addStrategy(strategy) {
-    newStrategies.push(strategy);
-}
-
 const GRID_SIZE = 100;
 const VISION_SIZE = 12;
-const MAX_NUMBER_OF_STRATEGIES = 50;
 const GAS_DAMAGE = 10;
 const GAME_DURATION = 180000; // 3 minutes
 const INITIAL_STORM_RATIO = Math.sqrt(2 * GRID_SIZE * GRID_SIZE);
@@ -71,7 +64,6 @@ export class Field {
     }
 
     async runIteration(gameTime) {
-        this.loadNewStrategies();
         await this.executeStrategies();
         this.calculateDamageByField();
         this.calculateDamage();
@@ -125,14 +117,6 @@ export class Field {
                 strategy.health -= GAS_DAMAGE;
             }
         });
-    }
-
-    loadNewStrategies() {
-        while (MAX_NUMBER_OF_STRATEGIES >= this.strategies.length && newStrategies.length > 0) {
-            const newStrategy = newStrategies.shift();
-            newStrategy.setPosition(this.randomNumber(GRID_SIZE), this.randomNumber(GRID_SIZE));
-            this.strategies.push(newStrategy);
-        }
     }
 
     randomNumber(limit) {
