@@ -4,8 +4,8 @@ import {validateAction, validateInsideMovement, validateOutsideMovement, validMo
 
 const getValidMovements = validMovements;
 const isValidMovement = (mapInfo, movement) => {
-    return validateOutsideMovement(mapInfo, movement) && validateInsideMovement(mapInfo, movement)
-}
+    return validateOutsideMovement(mapInfo, movement) && validateInsideMovement(mapInfo, movement);
+};
 
 const TIME_TO_CHECK_SAME_TESTCASE = 3;
 

@@ -1,0 +1,11 @@
+{
+  "development": {
+    "github": true
+  },
+  "docker": {
+    "github": true
+  },
+  "test": {
+    "github": false
+  }
+}

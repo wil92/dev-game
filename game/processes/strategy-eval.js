@@ -3,8 +3,8 @@ import {validateInsideMovement, validateOutsideMovement, validMovements} from '.
 
 const getValidMovements = validMovements;
 const isValidMovement = (mapInfo, movement) => {
-    return validateOutsideMovement(mapInfo, movement) && validateInsideMovement(mapInfo, movement)
-}
+    return validateOutsideMovement(mapInfo, movement) && validateInsideMovement(mapInfo, movement);
+};
 
 function evalStrategy({code, data, id}) {
     try {

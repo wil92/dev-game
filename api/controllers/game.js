@@ -1,7 +1,7 @@
 import {Controller, Get, Inject, Post} from '../../core';
 import {Main} from '../../game';
 import {CheckStrategy, Sanitizer} from '../services';
-import {EvalEnum} from "../../game/enums";
+import {EvalEnum} from '../../game/enums';
 
 @Controller({route: '/game'})
 export default class GameController {
@@ -36,7 +36,7 @@ export default class GameController {
 
     @Post({route: '/strategy'})
     async createStrategy(req, res) {
-        if (this.sanitizer.sanitizeRequestBody(req, res, ['code', 'name'])) {
+        if (this.sanitizer.sanitizeRequestBody(req, res, [ 'code', 'name' ])) {
             const result = await this.checkStrategy.checkStrategy(req.body.code);
             delete result.id;
             if (result.status === EvalEnum.OK) {
@@ -48,7 +48,7 @@ export default class GameController {
 
     @Post({route: '/strategy/test'})
     async testStrategy(req, res) {
-        if (this.sanitizer.sanitizeRequestBody(req, res, ['code'])) {
+        if (this.sanitizer.sanitizeRequestBody(req, res, [ 'code' ])) {
             const result = await this.checkStrategy.checkStrategy(req.body.code);
             delete result.id;
             res.send(result);

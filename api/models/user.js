@@ -1,4 +1,4 @@
-import {Attribute, Model} from '../../core';
+import {Attribute, Model, ToMany} from '../../core';
 
 @Model()
 export default class User {
@@ -8,9 +8,12 @@ export default class User {
     @Attribute({type: String, unique: true, required: true})
     username;
 
-    @Attribute({type: String, unique: true, required: true})
+    @Attribute({type: String, unique: true})
     email;
 
     @Attribute({type: String})
     password;
+
+    @ToMany({model: 'Provider'})
+    providers;
 }

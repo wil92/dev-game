@@ -1,19 +1,19 @@
 import {Inject, Injectable} from '../../core';
 import {Database} from '../services/database';
-import User from '../models/user';
+import Provider from '../models/provider';
 
 @Injectable()
-export class Users {
+export class Providers {
 
     @Inject(Database)
     database;
 
     constructor() {
-        this.model = this.database.getModel(User);
+        this.model = this.database.getModel(Provider);
     }
 
     async list() {
-        return await this.model.find();
+        return this.model.find();
     }
 
     async findOne(query) {

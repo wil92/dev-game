@@ -27,7 +27,7 @@ export class Field {
         this.strategies = [];
         this.eval = new Eval();
 
-        [...new Array(50)].forEach(() => {
+        [ ...new Array(50) ].forEach(() => {
             const strategy = new Strategy(
                 '(function () {\n    return {\n        run: function ({position, vision, velocity, players, health, attack, name}) {\n            return this.getRandomMovement({position, vision, velocity});\n        },\n        getRandomMovement: function (mapInfo) {\n            const movements = getValidMovements(mapInfo);\n            const selection = movements[Math.floor(Math.random() * movements.length)];\n            return {velocity: selection.velocity, direction: selection.direction};\n        }\n    };\n})();',
                 this.eval
@@ -95,7 +95,7 @@ export class Field {
             if (positions.has(positionHash)) {
                 positions.get(positionHash).push(strategy);
             } else {
-                positions.set(positionHash, [strategy]);
+                positions.set(positionHash, [ strategy ]);
             }
         });
         this.calculateDamageByPlayers(positions);
