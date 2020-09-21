@@ -28,6 +28,7 @@
   },
   "globals": {
     "Map": true,
-    "Promise": true
+    "Promise": true,
+    "Set": true
   }
 }

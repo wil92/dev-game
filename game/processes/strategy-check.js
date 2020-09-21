@@ -2,7 +2,9 @@ import {EvalEnum} from '../enums';
 import inputs from './test-data';
 import {validateAction, validateInsideMovement, validateOutsideMovement, validMovements} from '../utils';
 
+// noinspection JSUnusedLocalSymbols
 const getValidMovements = validMovements;
+// noinspection JSUnusedLocalSymbols
 const isValidMovement = (mapInfo, movement) => {
     return validateOutsideMovement(mapInfo, movement) && validateInsideMovement(mapInfo, movement);
 };
