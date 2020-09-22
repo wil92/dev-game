@@ -1,7 +1,7 @@
 import {Controller, Get, Inject, Post} from '../../core';
 import {Main} from '../../game';
 import {CheckStrategy, Sanitizer} from '../services';
-import {EvalEnum} from '../../game/enums';
+import {Off} from "../middlewares/off";
 
 @Controller({route: '/game'})
 export default class GameController {
@@ -15,14 +15,14 @@ export default class GameController {
     @Inject(Sanitizer)
     sanitizer;
 
-    @Get({route: '/start'})
+    @Post({route: '/start', middlewares: Off})
     async start(req, res) {
         console.log('start game');
         this.mainGame.startGame();
         res.send({});
     }
 
-    @Get({route: '/stop'})
+    @Post({route: '/stop', middlewares: Off})
     async stop(req, res) {
         console.log('stop game');
         this.mainGame.stopGame();
