@@ -16,6 +16,10 @@ export function Inject(classObject) {
     };
 }
 
+export function getService(clazz) {
+    return services.get(clazz.name);
+}
+
 export function addInjectableService(clazz) {
     services.set(clazz.name, new clazz());
 }

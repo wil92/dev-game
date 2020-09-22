@@ -1,4 +1,5 @@
 import {Router} from 'express';
+import {getService} from "./injection";
 
 export function Controller({route}) {
     return function (target) {
@@ -12,6 +13,10 @@ export function Controller({route}) {
                     if (typeof element === 'object' && element.route) {
                         delete target.prototype[key];
                         element.func = element.func.bind(this);
+                        element.middlewares.forEach(middleware => {
+                            const middlewareIns = getService(middleware);
+                            router.use(element.route, middlewareIns.next.bind(middlewareIns));
+                        });
                         router[element.method](element.route, element.func);
                         this[element.key] = element.func;
                     }
@@ -27,38 +32,39 @@ export function Controller({route}) {
     };
 }
 
-function buildMethod(target, key, descriptor, route, method) {
-    method = method || 'get';
-    target[key + '_endpoint'] = {method, func: descriptor.value, route, key};
+function buildMethod(target, key, descriptor, route, method, middlewares) {
+    middlewares = middlewares || [];
+    middlewares = typeof middlewares === 'function' ? [middlewares] : middlewares;
+    target[key + '_endpoint'] = {method, func: descriptor.value, route, key, middlewares};
     return descriptor;
 }
 
-export function Get({route}) {
+export function Get({route, middlewares}) {
     return function (target, key, descriptor) {
-        return buildMethod(target, key, descriptor, route);
+        return buildMethod(target, key, descriptor, route, 'get', middlewares);
     };
 }
 
-export function Post({route}) {
+export function Post({route, middlewares}) {
     return function (target, key, descriptor) {
-        return buildMethod(target, key, descriptor, route, 'post');
+        return buildMethod(target, key, descriptor, route, 'post', middlewares);
     };
 }
 
-export function Delete({route}) {
+export function Delete({route, middlewares}) {
     return function (target, key, descriptor) {
-        return buildMethod(target, key, descriptor, route, 'delete');
+        return buildMethod(target, key, descriptor, route, 'delete', middlewares);
     };
 }
 
-export function Patch({route}) {
+export function Patch({route, middlewares}) {
     return function (target, key, descriptor) {
-        return buildMethod(target, key, descriptor, route, 'patch');
+        return buildMethod(target, key, descriptor, route, 'patch', middlewares);
     };
 }
 
-export function Put({route}) {
+export function Put({route, middlewares}) {
     return function (target, key, descriptor) {
-        return buildMethod(target, key, descriptor, route, 'put');
+        return buildMethod(target, key, descriptor, route, 'put', middlewares);
     };
 }
