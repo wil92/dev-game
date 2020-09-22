@@ -25,13 +25,13 @@ export default class StrategyController {
 
     @Get({route: '/dummy'})
     dummyStrategy(req, res) {
-        res.send(dummyCode);
+        res.send({code: dummyCode});
     }
 
     @Post({route: '/', middlewares: Auth})
     async create(req, res) {
         if (this.sanitizer.sanitizeRequestBody(req, res, [ 'code', 'name' ])) {
-            const result = await this.checkStrategy.checkStrategy(req.body.code);
+            const result = await this.checkStrategy.checkStrategy(this.toValidCode(req.body.code));
             delete result.id;
             if (result.status === EvalEnum.OK) {
                 // toDo 22.09.20: create new strategy
@@ -43,9 +43,13 @@ export default class StrategyController {
     @Post({route: '/test', middlewares: Auth})
     async test(req, res) {
         if (this.sanitizer.sanitizeRequestBody(req, res, [ 'code' ])) {
-            const result = await this.checkStrategy.checkStrategy(req.body.code);
+            const result = await this.checkStrategy.checkStrategy(this.toValidCode(req.body.code));
             delete result.id;
             res.send(result);
         }
+    }
+
+    toValidCode(code) {
+        return `(function(){return ${code}})()`;
     }
 }
