@@ -33,25 +33,4 @@ export default class GameController {
     field(req, res) {
         res.send(this.mainGame.field.grid);
     }
-
-    @Post({route: '/strategy'})
-    async createStrategy(req, res) {
-        if (this.sanitizer.sanitizeRequestBody(req, res, [ 'code', 'name' ])) {
-            const result = await this.checkStrategy.checkStrategy(req.body.code);
-            delete result.id;
-            if (result.status === EvalEnum.OK) {
-                this.mainGame.addNewStrategy(req.body.code, req.body.code);
-            }
-            res.send(result);
-        }
-    }
-
-    @Post({route: '/strategy/test'})
-    async testStrategy(req, res) {
-        if (this.sanitizer.sanitizeRequestBody(req, res, [ 'code' ])) {
-            const result = await this.checkStrategy.checkStrategy(req.body.code);
-            delete result.id;
-            res.send(result);
-        }
-    }
 }

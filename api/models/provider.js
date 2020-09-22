@@ -3,9 +3,6 @@ import {Attribute, Model, ToOne} from '../../core';
 @Model()
 export default class Provider {
     @Attribute({type: String})
-    id;
-
-    @Attribute({type: String})
     provider;
 
     @Attribute({type: String})
