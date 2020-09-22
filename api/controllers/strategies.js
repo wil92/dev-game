@@ -3,6 +3,7 @@ import {Strategies} from '../repositories';
 import {Auth} from '../middlewares/auth';
 import {CheckStrategy, Sanitizer} from "../services";
 import {EvalEnum} from "../../game/enums";
+import dummyCode from '../../public/dummy';
 
 @Controller({route: '/strategies'})
 export default class StrategyController {
@@ -20,6 +21,11 @@ export default class StrategyController {
     async strategies(req, res) {
         const strategies = await this.usersService.list();
         res.send(strategies);
+    }
+
+    @Get({route: '/dummy'})
+    dummyStrategy(req, res) {
+        res.send(dummyCode);
     }
 
     @Post({route: '/', middlewares: Auth})

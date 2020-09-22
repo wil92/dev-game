@@ -15,7 +15,7 @@ export function Controller({route}) {
                         element.func = element.func.bind(this);
                         element.middlewares.forEach(middleware => {
                             const middlewareIns = getService(middleware);
-                            router.use(element.route, middlewareIns.next.bind(middlewareIns));
+                            router[element.method](element.route, middlewareIns.next.bind(middlewareIns));
                         });
                         router[element.method](element.route, element.func);
                         this[element.key] = element.func;

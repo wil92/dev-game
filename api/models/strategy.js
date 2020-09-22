@@ -11,6 +11,9 @@ export default class Strategy {
     @Attribute({type: Boolean})
     valid;
 
+    @Attribute({type: Boolean})
+    active;
+
     @ToOne({model: 'User'})
     user;
 }
