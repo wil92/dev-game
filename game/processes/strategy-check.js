@@ -8,6 +8,8 @@ const getValidMovements = validMovements;
 const isValidMovement = (mapInfo, movement) => {
     return validateOutsideMovement(mapInfo, movement) && validateInsideMovement(mapInfo, movement);
 };
+// noinspection JSUnusedLocalSymbols
+const randomNumber = (n) => Math.floor(Math.random() * n);
 
 const TIME_TO_CHECK_SAME_TESTCASE = 3;
 
