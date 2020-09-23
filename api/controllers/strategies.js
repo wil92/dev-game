@@ -34,6 +34,16 @@ export default class StrategyController {
         res.send({code: strategy.code, name: strategy.name});
     }
 
+    @Post({route: '/:id/activate', middlewares: Auth})
+    async activateStrategy(req, res) {
+        const strategy = await this.strategiesRepository.activate(req.params.id, req.user);
+        if (strategy) {
+            res.status(202).send();
+        } else {
+            res.status(406).send({error: 'Not Acceptable'});
+        }
+    }
+
     @Post({route: '/:id', middlewares: Auth})
     async createStrategy(req, res) {
         if (this.sanitizer.sanitizeRequestBody(req, res, ['code', 'name'])) {

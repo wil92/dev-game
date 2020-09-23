@@ -24,6 +24,15 @@ export class Strategies {
         return this.model.findOne(query);
     }
 
+    async activate(id, user) {
+        const strategy = await this.findOne({_id: id});
+        if (strategy.valid) {
+            await this.model.updateMany({user: user._id}, {active: false});
+            return await this.update({_id: id}, {active: true});
+        }
+        return null;
+    }
+
     async update(query, data) {
         const strategy = this.findOne(query);
         return this.model.update(query, {
