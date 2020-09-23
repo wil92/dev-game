@@ -9,7 +9,7 @@ import dummyCode from '../../public/dummy';
 export default class StrategyController {
 
     @Inject(Strategies)
-    usersService;
+    strategiesRepository;
 
     @Inject(CheckStrategy)
     checkStrategy;
@@ -19,30 +19,53 @@ export default class StrategyController {
 
     @Get({route: '/', middlewares: Auth})
     async strategies(req, res) {
-        const strategies = await this.usersService.list();
+        const strategies = await this.strategiesRepository.list();
         res.send(strategies);
     }
 
     @Get({route: '/dummy'})
     dummyStrategy(req, res) {
-        res.send({code: dummyCode});
+        res.send({code: dummyCode, name: "Dummy Code"});
+    }
+
+    @Get({route: '/:id', middlewares: Auth})
+    async strategyById(req, res) {
+        const strategy = await this.strategiesRepository.findOne({_id: req.params.id})
+        res.send({code: strategy.code, name: strategy.name});
+    }
+
+    @Post({route: '/:id', middlewares: Auth})
+    async createStrategy(req, res) {
+        if (this.sanitizer.sanitizeRequestBody(req, res, ['code', 'name'])) {
+            await this.strategiesRepository.update({_id: req.params.id}, {
+                code: req.body.code,
+                name: req.body.name
+            });
+            const strategy = await this.strategiesRepository.findOne({_id: req.params.id})
+            res.send({code: strategy.code, name: strategy.name});
+        }
     }
 
     @Post({route: '/', middlewares: Auth})
     async create(req, res) {
-        if (this.sanitizer.sanitizeRequestBody(req, res, [ 'code', 'name' ])) {
+        if (this.sanitizer.sanitizeRequestBody(req, res, ['code', 'name'])) {
             const result = await this.checkStrategy.checkStrategy(this.toValidCode(req.body.code));
             delete result.id;
-            if (result.status === EvalEnum.OK) {
-                // toDo 22.09.20: create new strategy
-            }
-            res.send(result);
+            const valid = result.status === EvalEnum.OK;
+            const newStrategy = await this.strategiesRepository.create({
+                code: req.body.code,
+                name: req.body.name,
+                valid,
+                active: false,
+                user: req.user._id
+            });
+            res.send({code: newStrategy.code, name: newStrategy.name, id: newStrategy._id});
         }
     }
 
     @Post({route: '/test', middlewares: Auth})
     async test(req, res) {
-        if (this.sanitizer.sanitizeRequestBody(req, res, [ 'code' ])) {
+        if (this.sanitizer.sanitizeRequestBody(req, res, ['code'])) {
             const result = await this.checkStrategy.checkStrategy(this.toValidCode(req.body.code));
             delete result.id;
             res.send(result);

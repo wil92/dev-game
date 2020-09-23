@@ -15,4 +15,20 @@ export class Strategies {
     async list(query) {
         return await this.model.find(query);
     }
+
+    async create(data) {
+        return this.model.create(data);
+    }
+
+    async findOne(query) {
+        return this.model.findOne(query);
+    }
+
+    async update(query, data) {
+        const strategy = this.findOne(query);
+        return this.model.update(query, {
+            ...strategy,
+            ...data
+        });
+    }
 }

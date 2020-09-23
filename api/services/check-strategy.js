@@ -27,7 +27,7 @@ export class CheckStrategy {
         times = times || 0;
         if (times > TIMES_TO_WAIT_TEST) {
             clearTimeout(timeLimit);
-            return resolve({status: EvalEnum.ERROR});
+            return resolve({status: EvalEnum.TIMEOUT});
         }
         this.process.once('message', (result) => {
             if (result.id === id) {

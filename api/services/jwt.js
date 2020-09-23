@@ -29,4 +29,13 @@ export class Jwt {
     validateJwt(token) {
         return jwt.verify(token, this.secret);
     }
+
+    /**
+     *
+     * @param token
+     * @returns {{username: any}}
+     */
+    decodeJwt(token) {
+        return jwt.decode(token);
+    }
 }
