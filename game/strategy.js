@@ -4,6 +4,7 @@ import {EvalEnum} from './enums';
 export class Strategy {
 
     constructor(code, evalInstance, name, username, id) {
+        this.unique = randomName(10) + Date.now();
         this.code = code;
         this.name = name || randomName(5);
         this.username = username || randomName(5);

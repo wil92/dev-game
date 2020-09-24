@@ -153,7 +153,7 @@ export class Field {
             const fieldInfo = {
                 vision: this.extractVisionField(strategy.position),
                 position: this.extractPlayerPositionInVisionField(strategy.position),
-                players: [] // toDo 20.09.20: calculate players inside the vision area
+                players: this.closePlayers(strategy)
             };
             const result = await strategy.executeStrategy(fieldInfo);
             const position = this.calculatePosition(result, strategy.position, strategy.velocity);
@@ -161,6 +161,21 @@ export class Field {
                 strategy.setPosition(position.x, position.y);
             }
         }
+    }
+
+    closePlayers(strategy) {
+        // toDo 25.09.20: improve this with a 2d segment-tree
+        const x1 = Math.max(strategy.position.x - VISION_SIZE, 0);
+        const x2 = Math.min(strategy.position.x + VISION_SIZE, GRID_SIZE - 1);
+        const y1 = Math.max(strategy.position.y - VISION_SIZE, 0);
+        const y2 = Math.min(strategy.position.y + VISION_SIZE, GRID_SIZE - 1);
+        return this.strategies
+            .filter(s => strategy.unique !== s.unique &&
+                s.position.x >= x1 &&
+                s.position.x <= x2 &&
+                s.position.y >= y1 &&
+                s.position.y <= y2)
+            .map(s => ({position: s.position, health: s.health, attack: s.attack}));
     }
 
     validatePosition(position) {
