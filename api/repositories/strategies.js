@@ -13,7 +13,7 @@ export class Strategies {
     }
 
     async list(query) {
-        return await this.model.find(query);
+        return await this.model.find(query).populate(['user']);
     }
 
     async create(data) {
