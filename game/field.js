@@ -25,18 +25,20 @@ export class Field {
         this.createField();
         this.stormCenter = {x: this.randomNumber(GRID_SIZE), y: this.randomNumber(GRID_SIZE)};
         this.strategies = [];
+        this.standing = [];
+        this.standingCount = 1;
         this.eval = new Eval();
+    }
 
-        [ ...new Array(50) ].forEach(() => {
-            const strategy = new Strategy(
-                '(function () {\n    return {\n        run: function ({position, vision, velocity, players, health, attack, name}) {\n            return this.getRandomMovement({position, vision, velocity});\n        },\n        getRandomMovement: function (mapInfo) {\n            const movements = getValidMovements(mapInfo);\n            const selection = movements[Math.floor(Math.random() * movements.length)];\n            return {velocity: selection.velocity, direction: selection.direction};\n        }\n    };\n})();',
-                this.eval
-            );
-            strategy.setPosition(this.randomNumber(GRID_SIZE), this.randomNumber(GRID_SIZE));
-            if (this.grid[strategy.position.x][strategy.position.y] !== FieldEnum.BLOCK) {
-                this.strategies.push(strategy);
-            }
-        });
+    /**
+     * @param strategy {{code: string, name: string, id: string, username: string}}
+     */
+    addStrategy({code, name, username, id}) {
+        const strategyIns = new Strategy(code, this.eval, name, username, id);
+        do {
+            strategyIns.setPosition(this.randomNumber(GRID_SIZE), this.randomNumber(GRID_SIZE));
+        } while (this.grid[strategyIns.position.x][strategyIns.position.y] === FieldEnum.BLOCK);
+        this.strategies.push(strategyIns);
     }
 
     createField() {
@@ -108,7 +110,22 @@ export class Field {
                 position.forEach((strategy) => strategy.health -= (sum - strategy.attack) / (position.length - 1));
             }
         });
+        const removed = this.strategies.filter(strategy => strategy.health <= 0);
+        if (removed.length > 0) {
+            const losers = removed
+                .filter(strategy => strategy.id)
+                .map(strategy => ({name: strategy.name, id: strategy.id, username: strategy.username, standing: this.standingCount}));
+            this.standing.push(losers);
+            this.standingCount++;
+        }
         this.strategies = this.strategies.filter(strategy => strategy.health > 0);
+    }
+
+    getStanding() {
+        return [
+            ...this.standing.reduce((p, a) => [...p, ...a.map(s => ({...s, standing: this.standingCount - s.standing}))], []),
+            ...this.strategies.filter(s => s.id).map(s => ({name: s.name, id: s.id, username: s.username}))
+        ].reverse();
     }
 
     calculateDamageByField() {

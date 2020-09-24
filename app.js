@@ -6,7 +6,7 @@ import logger from 'morgan';
 import cors from 'cors';
 
 import {buildControllers} from './api/controllers';
-import {addInjectableService} from './core';
+import {addInjectableService, getService} from './core';
 import {WebSocketConnection} from './api/services';
 import {Main} from './game';
 
@@ -27,5 +27,8 @@ const routes = buildControllers();
 Object.keys(routes)
     .filter(key => Boolean(routes[key].router))
     .forEach(key => app.use('/', routes[key].router));
+
+// start game
+getService(Main).restartGame().then();
 
 export default app;

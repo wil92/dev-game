@@ -33,11 +33,19 @@ export class Strategies {
         return null;
     }
 
+    async count(query) {
+        return this.model.count(query);
+    }
+
     async update(query, data) {
         const strategy = this.findOne(query);
         return this.model.update(query, {
             ...strategy,
             ...data
         });
+    }
+
+    toValidCode(code) {
+        return `(function(){return ${code}})()`;
     }
 }

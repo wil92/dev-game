@@ -9,7 +9,8 @@ export const MessagesTypes = {
     MAP_UPDATE: 'MAP_UPDATE',
     GAME_PAUSE: 'GAME_PAUSE',
     GAME_END: 'GAME_END',
-    GAME_START: 'GAME_START'
+    GAME_START: 'GAME_START',
+    GAME_STANDING: 'GAME_STANDING'
 };
 
 export class WebSocketConnection {

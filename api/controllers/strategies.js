@@ -45,7 +45,7 @@ export default class StrategyController {
     }
 
     @Post({route: '/:id', middlewares: Auth})
-    async createStrategy(req, res) {
+    async updateStrategy(req, res) {
         if (this.sanitizer.sanitizeRequestBody(req, res, ['code', 'name'])) {
             await this.strategiesRepository.update({_id: req.params.id}, {
                 code: req.body.code,
@@ -59,6 +59,10 @@ export default class StrategyController {
     @Post({route: '/', middlewares: Auth})
     async create(req, res) {
         if (this.sanitizer.sanitizeRequestBody(req, res, ['code', 'name'])) {
+            const count = await this.strategiesRepository.count({user: req.user._id});
+            if (count >= 5) {
+                return res.status(403).send({error: 'You reached the limit of strategies'});
+            }
             const result = await this.checkStrategy.checkStrategy(this.toValidCode(req.body.code));
             delete result.id;
             const valid = result.status === EvalEnum.OK;
@@ -76,13 +80,9 @@ export default class StrategyController {
     @Post({route: '/test', middlewares: Auth})
     async test(req, res) {
         if (this.sanitizer.sanitizeRequestBody(req, res, ['code'])) {
-            const result = await this.checkStrategy.checkStrategy(this.toValidCode(req.body.code));
+            const result = await this.checkStrategy.checkStrategy(this.strategiesRepository.toValidCode(req.body.code));
             delete result.id;
             res.send(result);
         }
-    }
-
-    toValidCode(code) {
-        return `(function(){return ${code}})()`;
     }
 }
