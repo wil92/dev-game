@@ -44,15 +44,28 @@ export default class StrategyController {
         }
     }
 
+    @Post({route: '/test', middlewares: Auth})
+    async test(req, res) {
+        if (this.sanitizer.sanitizeRequestBody(req, res, ['code'])) {
+            const result = await this.checkStrategy.checkStrategy(this.strategiesRepository.toValidCode(req.body.code));
+            delete result.id;
+            res.send(result);
+        }
+    }
+
     @Post({route: '/:id', middlewares: Auth})
     async updateStrategy(req, res) {
         if (this.sanitizer.sanitizeRequestBody(req, res, ['code', 'name'])) {
+            const result = await this.checkStrategy.checkStrategy(this.strategiesRepository.toValidCode(req.body.code));
+            delete result.id;
+            const valid = result.status === EvalEnum.OK;
             await this.strategiesRepository.update({_id: req.params.id}, {
                 code: req.body.code,
-                name: req.body.name
+                name: req.body.name,
+                valid
             });
             const strategy = await this.strategiesRepository.findOne({_id: req.params.id})
-            res.send({code: strategy.code, name: strategy.name});
+            res.send({code: strategy.code, name: strategy.name, id: strategy._id});
         }
     }
 
@@ -63,7 +76,7 @@ export default class StrategyController {
             if (count >= 5) {
                 return res.status(403).send({error: 'You reached the limit of strategies'});
             }
-            const result = await this.checkStrategy.checkStrategy(this.toValidCode(req.body.code));
+            const result = await this.checkStrategy.checkStrategy(this.strategiesRepository.toValidCode(req.body.code));
             delete result.id;
             const valid = result.status === EvalEnum.OK;
             const newStrategy = await this.strategiesRepository.create({
@@ -74,15 +87,6 @@ export default class StrategyController {
                 user: req.user._id
             });
             res.send({code: newStrategy.code, name: newStrategy.name, id: newStrategy._id});
-        }
-    }
-
-    @Post({route: '/test', middlewares: Auth})
-    async test(req, res) {
-        if (this.sanitizer.sanitizeRequestBody(req, res, ['code'])) {
-            const result = await this.checkStrategy.checkStrategy(this.strategiesRepository.toValidCode(req.body.code));
-            delete result.id;
-            res.send(result);
         }
     }
 }
