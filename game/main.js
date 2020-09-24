@@ -86,7 +86,7 @@ export class Main {
             username: strategy.user.username
         }));
 
-        // this.generateBots(strategies.length);
+        this.generateBots(strategies.length);
     }
 
     generateBots(strategiesCount) {

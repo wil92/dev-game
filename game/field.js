@@ -97,7 +97,7 @@ export class Field {
             if (positions.has(positionHash)) {
                 positions.get(positionHash).push(strategy);
             } else {
-                positions.set(positionHash, [ strategy ]);
+                positions.set(positionHash, [strategy]);
             }
         });
         this.calculateDamageByPlayers(positions);
@@ -106,16 +106,19 @@ export class Field {
     calculateDamageByPlayers(positions) {
         positions.forEach(position => {
             if (position.length > 1) {
-                const sum = position.reduce((p, v) => p.attack + v, 0);
+                const sum = position.reduce((p, v) => v.attack + p, 0);
                 position.forEach((strategy) => strategy.health -= (sum - strategy.attack) / (position.length - 1));
             }
         });
-        const removed = this.strategies.filter(strategy => strategy.health <= 0);
+        const removed = this.strategies.filter(strategy => strategy.health <= 0 && strategy.id);
         if (removed.length > 0) {
-            const losers = removed
-                .filter(strategy => strategy.id)
-                .map(strategy => ({name: strategy.name, id: strategy.id, username: strategy.username, standing: this.standingCount}));
-            this.standing.push(losers);
+            removed.forEach(strategy => this.standing.push({
+                name: strategy.name,
+                id: strategy.id,
+                username: strategy.username,
+                standing: this.standingCount,
+                health: 0
+            }));
             this.standingCount++;
         }
         this.strategies = this.strategies.filter(strategy => strategy.health > 0);
@@ -123,8 +126,13 @@ export class Field {
 
     getStanding() {
         return [
-            ...this.standing.reduce((p, a) => [...p, ...a.map(s => ({...s, standing: this.standingCount - s.standing}))], []),
-            ...this.strategies.filter(s => s.id).map(s => ({name: s.name, id: s.id, username: s.username}))
+            ...this.standing.map(s => ({...s, standing: this.standingCount - s.standing})),
+            ...this.strategies.filter(s => s.id).map(s => ({
+                name: s.name,
+                id: s.id,
+                username: s.username,
+                health: s.health
+            }))
         ].reverse();
     }
 
