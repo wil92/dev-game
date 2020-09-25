@@ -59,12 +59,14 @@ export default class StrategyController {
             const result = await this.checkStrategy.checkStrategy(this.strategiesRepository.toValidCode(req.body.code));
             delete result.id;
             const valid = result.status === EvalEnum.OK;
+            let strategy = await this.strategiesRepository.findOne({_id: req.params.id});
             await this.strategiesRepository.update({_id: req.params.id}, {
                 code: req.body.code,
                 name: req.body.name,
-                valid
+                valid,
+                active: valid ? strategy.active : false
             });
-            const strategy = await this.strategiesRepository.findOne({_id: req.params.id})
+            strategy = await this.strategiesRepository.findOne({_id: req.params.id});
             res.send({code: strategy.code, name: strategy.name, id: strategy._id});
         }
     }
