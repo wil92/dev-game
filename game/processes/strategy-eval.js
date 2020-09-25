@@ -1,5 +1,5 @@
-import {EvalEnum} from '../enums';
-import {validateInsideMovement, validateOutsideMovement, validMovements} from '../utils';
+import {EvalEnum, FieldEnum as FieldEnumValue} from '../enums';
+import {validateInsideMovement, validateOutsideMovement, validMovements, moveToPos, posToMove} from '../utils';
 
 // noinspection JSUnusedLocalSymbols
 const getValidMovements = validMovements;
@@ -9,6 +9,12 @@ const isValidMovement = (mapInfo, movement) => {
 };
 // noinspection JSUnusedLocalSymbols
 const randomNumber = (n) => Math.floor(Math.random() * n);
+// noinspection JSUnusedLocalSymbols
+const transformMoveToPos = moveToPos;
+// noinspection JSUnusedLocalSymbols
+const transformPosToMove = posToMove;
+// noinspection JSUnusedLocalSymbols
+const FieldEnum = FieldEnumValue;
 
 function evalStrategy({code, data, id}) {
     try {
