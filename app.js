@@ -26,7 +26,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 const routes = buildControllers();
 Object.keys(routes)
     .filter(key => Boolean(routes[key].router))
-    .forEach(key => app.use('/', routes[key].router));
+    .forEach(key => app.use('/api/', routes[key].router));
 
 // start game
 getService(Main).restartGame().then();
