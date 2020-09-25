@@ -6,6 +6,7 @@ import {Strategies} from "../api/repositories";
 import dummyCode from '../public/dummy';
 
 const MAX_NUMBER_OF_STRATEGIES = 50;
+const WAIT_TIME_TO_START_NEW_GAME = 4000;
 
 export class Main {
 
@@ -52,7 +53,7 @@ export class Main {
         } else {
             this.socketConnection.broadcastMessage(MessagesTypes.GAME_END);
             this.stopGame();
-            setTimeout(this.restartGame.bind(this), 10000);
+            setTimeout(this.restartGame.bind(this), WAIT_TIME_TO_START_NEW_GAME);
         }
     }
 
