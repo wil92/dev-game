@@ -83,5 +83,18 @@ export default [
         health: 100,
         attack: 10,
         name: 'qfxuh'
+    },
+    {
+        vision:
+            [
+                [ 2, 2, 2 ],
+                [ 2, 2, 2 ],
+                [ 2, 2, 2 ] ],
+        players: [],
+        position: {x: 1, y: 1},
+        velocity: 2,
+        health: 100,
+        attack: 10,
+        name: 'qfxuh'
     }
 ];
