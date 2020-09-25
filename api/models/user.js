@@ -5,7 +5,7 @@ export default class User {
     @Attribute({type: String, unique: true, required: true})
     username;
 
-    @Attribute({type: String, unique: true})
+    @Attribute({type: String})
     email;
 
     @Attribute({type: String})
