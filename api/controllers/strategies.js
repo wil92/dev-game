@@ -18,8 +18,8 @@ export default class StrategyController {
     sanitizer;
 
     @Get({route: '/', middlewares: Auth})
-    async strategies(req, res) {
-        const strategies = await this.strategiesRepository.list();
+    async list(req, res) {
+        const strategies = await this.strategiesRepository.list({user: req.user._id});
         res.send(strategies);
     }
 
