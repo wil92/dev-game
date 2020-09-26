@@ -12,6 +12,10 @@ export class Eval {
         this.process = cp.fork('./game/processes/strategy-eval.js');
     }
 
+    destroy() {
+        this.process.kill("SIGINT");
+    }
+
     /**
      *
      * @param code {string}

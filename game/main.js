@@ -76,6 +76,9 @@ export class Main {
 
     async initGameValues() {
         this.interval = gameConfig[this.environment.env].interval;
+        if (this.field) {
+            this.field.destroy();
+        }
         this.field = new Field();
         this.status = 'STOPPED';
         this.gameTime = 0;

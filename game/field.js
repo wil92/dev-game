@@ -30,6 +30,10 @@ export class Field {
         this.eval = new Eval();
     }
 
+    destroy() {
+        this.eval.destroy();
+    }
+
     /**
      * @param strategy {{code: string, name: string, id: string, username: string}}
      */
