@@ -15,6 +15,9 @@ const app = express();
 addInjectableService(WebSocketConnection);
 addInjectableService(Main);
 
+// run migrations
+import migrate from "./core/migrate";
+
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
