@@ -3,12 +3,13 @@ import {EvalEnum} from './enums';
 
 export class Strategy {
 
-    constructor(code, evalInstance, name, username, id) {
+    constructor(code, evalInstance, name, username, id, userId) {
         this.unique = randomName(10) + Date.now();
         this.code = code;
         this.name = name || randomName(5);
         this.username = username || randomName(5);
         this.id = id;
+        this.userId = userId;
         this.position = {x: 0, y: 0};
         this.velocity = 2;
         this.health = 100;

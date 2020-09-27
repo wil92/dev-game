@@ -2,11 +2,11 @@ import {Inject} from '../core';
 import {Environment, WebSocketConnection, MessagesTypes} from '../api/services';
 import gameConfig from '../config/game.json';
 import {Field} from './field';
-import {Strategies} from "../api/repositories";
+import {Positions, Strategies} from "../api/repositories";
 import dummyCode from '../public/dummy';
 
 const MAX_NUMBER_OF_STRATEGIES = 50;
-const WAIT_TIME_TO_START_NEW_GAME = 4000;
+const WAIT_TIME_TO_START_NEW_GAME = 3000;
 
 export class Main {
 
@@ -18,6 +18,9 @@ export class Main {
 
     @Inject(Strategies)
     strategiesRepository;
+
+    @Inject(Positions)
+    positionsRepository;
 
     loop() {
         if (this.status === 'RUNNING') {
@@ -35,10 +38,10 @@ export class Main {
 
     async calculateIteration() {
         await this.field.runIteration(this.gameTime);
-        this.sendUpdateToClients();
+        await this.sendUpdateToClients();
     }
 
-    sendUpdateToClients() {
+    async sendUpdateToClients() {
         const strategiesList = this.field.strategies.map(strategy => ({
             position: strategy.position,
             name: strategy.name,
@@ -48,9 +51,10 @@ export class Main {
             health: strategy.health
         }));
         this.socketConnection.broadcastMessage(MessagesTypes.GAME_STANDING, this.field.getStanding());
-        if (strategiesList.length > 0) {
+        if (strategiesList.length > 1) {
             this.socketConnection.broadcastMessage(MessagesTypes.USERS_DATA, strategiesList);
         } else {
+            await this.positionsRepository.saveGame(this.field.getStanding());
             this.socketConnection.broadcastMessage(MessagesTypes.GAME_END);
             this.stopGame();
             setTimeout(this.restartGame.bind(this), WAIT_TIME_TO_START_NEW_GAME);
@@ -87,7 +91,8 @@ export class Main {
             id: strategy._id,
             name: strategy.name,
             code: this.strategiesRepository.toValidCode(strategy.code),
-            username: strategy.user.username
+            username: strategy.user.username,
+            userId: strategy.user._id
         }));
 
         this.generateBots(strategies.length);

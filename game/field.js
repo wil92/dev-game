@@ -9,7 +9,7 @@ import {DIRECTION} from './utils';
 const GRID_SIZE = 100;
 const VISION_SIZE = 12;
 const GAS_DAMAGE = 10;
-const GAME_DURATION = 180000; // 3 minutes
+const GAME_DURATION = 10000; // 3 minutes
 const INITIAL_STORM_RATIO = Math.sqrt(2 * GRID_SIZE * GRID_SIZE);
 
 export class Field {
@@ -35,10 +35,10 @@ export class Field {
     }
 
     /**
-     * @param strategy {{code: string, name: string, id: string, username: string}}
+     * @param strategy {{code: string, name: string, id: string, username: string, userId: string}}
      */
-    addStrategy({code, name, username, id}) {
-        const strategyIns = new Strategy(code, this.eval, name, username, id);
+    addStrategy({code, name, username, id, userId}) {
+        const strategyIns = new Strategy(code, this.eval, name, username, id, userId);
         do {
             strategyIns.setPosition(this.randomNumber(GRID_SIZE), this.randomNumber(GRID_SIZE));
         } while (this.grid[strategyIns.position.x][strategyIns.position.y] === FieldEnum.BLOCK);
@@ -121,13 +121,17 @@ export class Field {
                 id: strategy.id,
                 username: strategy.username,
                 standing: this.standingCount,
-                health: 0
+                health: 0,
+                userId: strategy.userId
             }));
             this.standingCount++;
         }
         this.strategies = this.strategies.filter(strategy => strategy.health > 0);
     }
 
+    /**
+     * @return {{name: string, health: number, id: string, username: string, userId: string, standing: number}[]}
+     */
     getStanding() {
         return [
             ...this.standing.map(s => ({...s, standing: this.standingCount - s.standing})),
@@ -135,7 +139,8 @@ export class Field {
                 name: s.name,
                 id: s.id,
                 username: s.username,
-                health: s.health
+                health: s.health,
+                userId: s.userId
             }))
         ].reverse();
     }
