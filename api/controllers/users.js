@@ -1,16 +1,15 @@
 import {Controller, Get, Inject} from '../../core';
 import {Users} from '../repositories';
-import {Auth} from '../middlewares/auth';
 
 @Controller({route: '/users'})
 export default class UserController {
 
     @Inject(Users)
-    usersService;
+    usersRepository;
 
-    @Get({route: '/', middlewares: Auth})
+    @Get({route: '/'})
     async users(req, res) {
-        const users = await this.usersService.list();
+        const users = await this.usersRepository.list();
         res.send(users);
     }
 }

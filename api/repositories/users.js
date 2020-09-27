@@ -13,7 +13,7 @@ export class Users {
     }
 
     async list() {
-        return await this.model.find();
+        return await this.model.find().sort({points: -1});
     }
 
     async findOne(query) {

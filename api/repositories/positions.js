@@ -4,7 +4,7 @@ import Position from "../models/position";
 import User from "../models/user";
 import Points from "../models/points";
 
-const FACTOR = 16;
+const FACTOR = 8;
 
 @Injectable()
 export class Positions {
