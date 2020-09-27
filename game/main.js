@@ -54,6 +54,7 @@ export class Main {
         if (strategiesList.length > 1) {
             this.socketConnection.broadcastMessage(MessagesTypes.USERS_DATA, strategiesList);
         } else {
+            this.field.closeStanding();
             await this.positionsRepository.saveGame(this.field.getStanding());
             this.socketConnection.broadcastMessage(MessagesTypes.GAME_END);
             this.stopGame();

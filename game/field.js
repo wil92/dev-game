@@ -5,6 +5,7 @@ import {Environment, MessagesTypes, WebSocketConnection} from '../api/services';
 import {FieldEnum} from './enums';
 import {Eval} from './eval';
 import {DIRECTION} from './utils';
+import strategy from "../api/models/strategy";
 
 const GRID_SIZE = 100;
 const VISION_SIZE = 12;
@@ -114,19 +115,27 @@ export class Field {
                 position.forEach((strategy) => strategy.health -= (sum - strategy.attack) / (position.length - 1));
             }
         });
-        const removed = this.strategies.filter(strategy => strategy.health <= 0 && strategy.id);
-        if (removed.length > 0) {
-            removed.forEach(strategy => this.standing.push({
+        const removed = this.strategies.filter(strategy => strategy.health <= 0 && Boolean(strategy.id));
+        this.addToStanding(removed);
+        this.strategies = this.strategies.filter(strategy => strategy.health > 0);
+    }
+
+    closeStanding() {
+        this.addToStanding(this.strategies.filter(strategy => Boolean(strategy.id)));
+    }
+
+    addToStanding(strategies) {
+        if (strategies.length > 0) {
+            strategies.forEach(strategy => this.standing.push({
                 name: strategy.name,
                 id: strategy.id,
                 username: strategy.username,
                 standing: this.standingCount,
-                health: 0,
+                health: Math.max(strategy.health, 0),
                 userId: strategy.userId
             }));
             this.standingCount++;
         }
-        this.strategies = this.strategies.filter(strategy => strategy.health > 0);
     }
 
     /**
