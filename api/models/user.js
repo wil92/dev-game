@@ -11,6 +11,9 @@ export default class User {
     @Attribute({type: String})
     password;
 
+    @Attribute({type: Number})
+    points;
+
     @ToMany({model: 'Provider'})
     providers;
 }
