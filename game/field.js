@@ -9,7 +9,7 @@ import {DIRECTION} from './utils';
 const GRID_SIZE = 100;
 const VISION_SIZE = 12;
 const GAS_DAMAGE = 10;
-const GAME_DURATION = 10000; // 3 minutes
+const GAME_DURATION = 180000; // 3 minutes
 const INITIAL_STORM_RATIO = Math.sqrt(2 * GRID_SIZE * GRID_SIZE);
 
 export class Field {
