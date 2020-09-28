@@ -5,6 +5,7 @@ import {Inject, Injectable} from '../../core';
 import {Environment} from './environment';
 import providersConfig from '../../config/providers.json';
 import {Providers, Users} from '../repositories';
+import {PointsRepository} from "../repositories/points";
 
 @Injectable()
 export class ProvidersService {
@@ -17,6 +18,9 @@ export class ProvidersService {
 
     @Inject(Users)
     usersRepository;
+
+    @Inject(PointsRepository)
+    pointsRepository;
 
     constructor() {
     }
@@ -61,10 +65,12 @@ export class ProvidersService {
             url: data.url,
             token: data.token
         });
-        await this.usersRepository.create({
+        const user = await this.usersRepository.create({
             username: data.username,
-            providers: [ newProvider ]
+            providers: [ newProvider ],
+            points: 1500
         });
+        await this.pointsRepository.addPoints(1500, user);
         return this.providersRepository.findOne({username: data.username});
     }
 
