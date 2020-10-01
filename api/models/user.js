@@ -14,6 +14,12 @@ export default class User {
     @Attribute({type: Number})
     points;
 
+    @Attribute({type: Number})
+    total;
+
+    @Attribute({type: Number})
+    wins;
+
     @ToMany({model: 'Provider'})
     providers;
 }

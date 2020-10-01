@@ -30,6 +30,11 @@ export class Database {
         });
     }
 
+    /**
+     *
+     * @param clazz
+     * @return {Model}
+     */
     getModel(clazz) {
         return modelMap.get(clazz.name);
     }

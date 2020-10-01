@@ -3,6 +3,8 @@ import {Database} from '../services/database';
 import Position from "../models/position";
 import User from "../models/user";
 import Points from "../models/points";
+import strategy from "../models/strategy";
+import strategies from "../controllers/strategies";
 
 const FACTOR = 8;
 
@@ -67,9 +69,15 @@ export class Positions {
 
         const pointsModel = this.database.getModel(Points);
         for (let i = 0; i < users.length; i++) {
-            const points = users[i].points + FACTOR * newPoints[idPos.get(users[i]._id.toString())]
-            await pointsModel.create({value: points, user: users[i]._id});
-            await userModel.update({_id: users[i]._id}, {points: points});
+            const user = users[i];
+            const points = user.points + FACTOR * newPoints[idPos.get(user._id.toString())]
+            await pointsModel.create({value: points, user: user._id});
+            const winValue = user._id.toString() === standing[0].userId.toString() ? 1 : 0;
+            await userModel.update({_id: user._id}, {
+                points: points,
+                wins: (user.wins || 0) + winValue,
+                total: (user.total || 0) + 1
+            });
         }
     }
 
