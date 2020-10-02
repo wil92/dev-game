@@ -68,7 +68,9 @@ export class ProvidersService {
         const user = await this.usersRepository.create({
             username: data.username,
             providers: [ newProvider ],
-            points: 1500
+            points: 1500,
+            wins: 0,
+            total: 0
         });
         await this.pointsRepository.addPoints(1500, user);
         return this.providersRepository.findOne({username: data.username});
