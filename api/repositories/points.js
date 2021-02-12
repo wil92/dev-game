@@ -15,4 +15,8 @@ export class PointsRepository {
     async addPoints(points, user) {
         return await this.model.create({value: points, user: user._id});
     }
+
+    async pointsByUser(userId) {
+        return this.model.find({user: userId}).sort({createdAt: 'desc'}).limit(20);
+    }
 }
