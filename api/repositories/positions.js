@@ -3,11 +3,12 @@ import {Database} from '../services/database';
 import Position from "../models/position";
 import User from "../models/user";
 import Points from "../models/points";
-import strategy from "../models/strategy";
-import strategies from "../controllers/strategies";
 
 const FACTOR = 8;
 
+/**
+ * @public model {Position}
+ */
 @Injectable()
 export class Positions {
 
@@ -31,48 +32,51 @@ export class Positions {
         const orderedStanding = standing
             .filter(s => s.standing !== undefined && s.userId !== undefined)
             .sort((a, b) => a.standing > b.standing);
-        await this.model.create({users: orderedStanding.map(s => s.userId)});
-        await this.calculateNewPoints(orderedStanding);
+        const standingIns = await this.model.create({users: orderedStanding.map(s => s.userId)});
+        await this.calculateNewPoints(orderedStanding, standingIns);
     }
 
     /**
      *
      * @param standing {{name: string, health: number, id: string, username: string, userId: string, standing: number}[]}
+     * @param standingIns {Position}
      * @return {Promise<void>}
      */
-    async calculateNewPoints(standing) {
-        const idPos = new Map();
-        const currentResult = [...new Array(standing.length)].map(() => [...new Array(standing.length)].fill(.5));
-
-        for (let i = 0; i < standing.length; i++) {
-            idPos.set(standing[i].userId.toString(), i);
-            for (let j = i + 1; j < standing.length; j++) {
-                const r = this.calculateResult(standing[i].standing, standing[j].standing);
-                currentResult[i][j] = r;
-                currentResult[j][i] = 1 - r;
-            }
-        }
-
+    async calculateNewPoints(standing, standingIns) {
         const userModel = this.database.getModel(User);
         const users = await userModel.find({_id: {$in: standing.map(s => s.userId)}});
         const newPoints = [...new Array(users.length)].fill(0);
-        for (let i = 0; i < users.length; i++) {
-            for (let j = i + 1; j < users.length; j++) {
-                const p = this.calculateLogisticFunction(users[i].points, users[j].points);
-                const ab = currentResult[idPos.get(users[i]._id.toString())][idPos.get(users[j]._id.toString())];
-                const ba = currentResult[idPos.get(users[j]._id.toString())][idPos.get(users[i]._id.toString())];
+        const userById = new Map();
+        users.forEach(user => userById.set(user._id.toString(), user));
+        standing = standing.filter(value => userById.has(value.userId));
 
-                newPoints[idPos.get(users[i]._id.toString())] += ab - p;
-                newPoints[idPos.get(users[j]._id.toString())] += ba - (1 - p);
+        const winUser = standing.reduce((p, u, i) => standing[p].standing < u.standing ? p : i, 0);
+
+        for (let i = 0; i < standing.length; i++) {
+            for (let j = 0; j < standing.length; j++) {
+                if (i === j) continue;
+                const userA = userById.get(standing[i].userId);
+                const userB = userById.get(standing[j].userId);
+                const p = this.calculateLogisticFunction(userA.points, userB.points);
+                const ab = this.calculateResult(standing[i].standing, standing[j].standing);
+                newPoints[i] += ab - p;
             }
         }
 
         const pointsModel = this.database.getModel(Points);
-        for (let i = 0; i < users.length; i++) {
-            const user = users[i];
-            const points = user.points + FACTOR * newPoints[idPos.get(user._id.toString())]
-            await pointsModel.create({value: points, user: user._id});
-            const winValue = user._id.toString() === standing[0].userId.toString() ? 1 : 0;
+        for (let i = 0; i < standing.length; i++) {
+            const user = userById.get(standing[i].userId);
+            const diff = FACTOR * newPoints[i];
+            const points = user.points + diff;
+            await pointsModel.create({
+                value: points,
+                user: user._id,
+                difference: diff,
+                position: standing[i].standing,
+                standing: standingIns._id,
+                createdAt: standingIns.createdAt
+            });
+            const winValue = user._id.toString() === standing[winUser].userId ? 1 : 0;
             await userModel.update({_id: user._id}, {
                 points: points,
                 wins: (user.wins || 0) + winValue,
@@ -82,10 +86,10 @@ export class Positions {
     }
 
     calculateLogisticFunction(a, b) {
-        return 1 / (1 + Math.pow(10, (a - b) / 400));
+        return 1.0 / (1.0 + Math.pow(10.0, (b - a) / 400.0));
     }
 
     calculateResult(a, b) {
-        return a < b ? 1 : a > b ? 0 : .5;
+        return a < b ? 1.0 : a > b ? 0 : .5;
     }
 }
