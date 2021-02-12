@@ -11,7 +11,7 @@ export function MigrationVersion(version) {
                 super(...args);
                 this.version = version;
 
-                const migrate = this.migrate;
+                const migrate = this.migrate.bind(this);
                 this.migrate = async (...props) => {
                     console.log('Applied migration', this.version);
                     return migrate(...props);
@@ -27,7 +27,6 @@ export class Migrate {
 
     constructor() {
         this.model = this.database.getModel(Migration);
-        this.executeMigrations().then();
     }
 
     async executeMigrations() {
