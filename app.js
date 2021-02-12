@@ -32,6 +32,8 @@ Object.keys(routes)
     .forEach(key => app.use('/api/', routes[key].router));
 
 // start game
-getService(Main).restartGame().then();
+migrate.executeMigrations().then(() => {
+    return getService(Main).restartGame().then();
+});
 
 export default app;
