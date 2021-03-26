@@ -5,7 +5,6 @@ import {Environment, MessagesTypes, WebSocketConnection} from '../api/services';
 import {FieldEnum} from './enums';
 import {Eval} from './eval';
 import {DIRECTION} from './utils';
-import strategy from "../api/models/strategy";
 
 const GRID_SIZE = 100;
 const VISION_SIZE = 12;
