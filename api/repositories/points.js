@@ -1,3 +1,5 @@
+import ObjectId from 'mongoose/lib/types/objectid';
+
 import {Inject, Injectable} from '../../core';
 import {Database} from '../services/database';
 import Points from "../models/points";
@@ -17,6 +19,26 @@ export class PointsRepository {
     }
 
     async pointsByUser(userId) {
-        return this.model.find({user: userId}).sort({createdAt: 'desc'}).limit(20);
+        return new Promise((resolve, reject) => {
+            this.model.aggregate([
+                {"$match": {"user": ObjectId(userId)}},
+                {"$sort": {"createdAt": 1}},
+                {
+                    "$group": {
+                        "_id": {$substr: ['$createdAt', 5, 2]},
+                        "pointId": {$last: "$_id"},
+                        "createdAt": {$last: "$createdAt"}
+                    }
+                },
+                {"$limit": 20}
+            ]).exec((err, points) => {
+                if (err) {
+                    return reject(err);
+                }
+                resolve(points)
+            });
+        }).then(points => {
+            return this.model.find({_id: {$in: points.map(p => p.pointId)}}).sort({createdAt: 'desc'});
+        });
     }
 }
